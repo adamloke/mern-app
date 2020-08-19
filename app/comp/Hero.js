@@ -1,22 +1,26 @@
-import React, { useEffect } from "react"
+import React, { useState } from "react"
 import Page from "./Page"
 import Axios from 'axios'
 
 function Hero() {
 
+//signup form input
+  const [username, setUsername] = useState()
+  const [email, setEmail] = useState()
+  const [password, setPassword] = useState()
+  const handleUsername = (e) => setUsername(e.target.value)
+  const handleEmail = (e) => setEmail(e.target.value)
+  const handlePassword = (e) => setPassword(e.target.value)
+
+// send signup data to backend
   async function handleSubmit(e) {
     e.preventDefault()
     try {
-        await Axios.post('http://localhost:8080/register', 
-        {
-          username:'test2', 
-          email:'test2@test.com', 
-          password: 'qwerty123456'
-        })
+        await Axios.post('http://localhost:8080/register', {username, email, password})
         console.log("User was successfully created")
         } catch(e) {
         console.log(e.response.data)
-      }
+    }
   }
 
   return (
@@ -37,6 +41,7 @@ function Hero() {
             <small>Username</small>
           </label>
           <input
+            onChange={handleUsername}
             id="username-register"
             name="username"
             className="form-control"
@@ -50,6 +55,7 @@ function Hero() {
             <small>Email</small>
           </label>
           <input
+            onChange={handleEmail}
             id="email-register"
             name="email"
             className="form-control"
@@ -63,18 +69,20 @@ function Hero() {
             <small>Password</small>
           </label>
           <input
+            onChange={handlePassword}
             id="password-register"
             name="password"
             className="form-control"
             type="password"
             placeholder="Create a password"
+            autoComplete="off"
           />
         </div>
         <button
           type="submit"
           className="py-3 mt-4 btn btn-lg btn-success btn-block"
         >
-          Sign up for ComplexApp
+          Sign up today
         </button>
       </form>
     </div>
