@@ -1,10 +1,9 @@
 import React, { useState } from "react"
 import Page from "./Page"
-import Axios from 'axios'
+import Axios from "axios"
 
 function Hero() {
-
-//signup form input
+  //signup form input
   const [username, setUsername] = useState()
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
@@ -12,82 +11,51 @@ function Hero() {
   const handleEmail = (e) => setEmail(e.target.value)
   const handlePassword = (e) => setPassword(e.target.value)
 
-// send signup data to backend
+  // send signup data to backend
   async function handleSubmit(e) {
     e.preventDefault()
     try {
-        await Axios.post('http://localhost:8080/register', {username, email, password})
-        console.log("User was successfully created")
-        } catch(e) {
-        console.log(e.response.data)
+      await Axios.post("/register", { username, email, password })
+      console.log("User was successfully created")
+    } catch (e) {
+      console.log(e.response.data)
     }
   }
 
   return (
     <Page title="Home" wide={true}>
-  <div className="row align-items-center">
-    <div className="col-lg-7 py-3 py-md-5">
-      <h1 className="display-3">Remember Writing?</h1>
-      <p className="lead text-muted">
-        Are you sick of short tweets and impersonal “shared” posts that are
-        reminiscent of the late 90’s email forwards? We believe getting back to
-        actually writing is the key to enjoying the internet again.
-      </p>
-    </div>
-    <div className="col-lg-5 pl-lg-5 pb-3 py-lg-5">
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="username-register" className="text-muted mb-1">
-            <small>Username</small>
-          </label>
-          <input
-            onChange={handleUsername}
-            id="username-register"
-            name="username"
-            className="form-control"
-            type="text"
-            placeholder="Pick a username"
-            autoComplete="off"
-          />
+      <div className="row align-items-center">
+        <div className="col-lg-7 py-3 py-md-5">
+          <h1 className="display-3">Remember Writing?</h1>
+          <p className="lead text-muted">Are you sick of short tweets and impersonal “shared” posts that are reminiscent of the late 90’s email forwards? We believe getting back to actually writing is the key to enjoying the internet again.</p>
         </div>
-        <div className="form-group">
-          <label htmlFor="email-register" className="text-muted mb-1">
-            <small>Email</small>
-          </label>
-          <input
-            onChange={handleEmail}
-            id="email-register"
-            name="email"
-            className="form-control"
-            type="text"
-            placeholder="you@example.com"
-            autoComplete="off"
-          />
+        <div className="col-lg-5 pl-lg-5 pb-3 py-lg-5">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="username-register" className="text-muted mb-1">
+                <small>Username</small>
+              </label>
+              <input onChange={handleUsername} id="username-register" name="username" className="form-control" type="text" placeholder="Pick a username" autoComplete="off" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="email-register" className="text-muted mb-1">
+                <small>Email</small>
+              </label>
+              <input onChange={handleEmail} id="email-register" name="email" className="form-control" type="text" placeholder="you@example.com" autoComplete="off" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="password-register" className="text-muted mb-1">
+                <small>Password</small>
+              </label>
+              <input onChange={handlePassword} id="password-register" name="password" className="form-control" type="password" placeholder="Create a password" autoComplete="off" />
+            </div>
+            <button type="submit" className="py-3 mt-4 btn btn-lg btn-success btn-block">
+              Sign up today
+            </button>
+          </form>
         </div>
-        <div className="form-group">
-          <label htmlFor="password-register" className="text-muted mb-1">
-            <small>Password</small>
-          </label>
-          <input
-            onChange={handlePassword}
-            id="password-register"
-            name="password"
-            className="form-control"
-            type="password"
-            placeholder="Create a password"
-            autoComplete="off"
-          />
-        </div>
-        <button
-          type="submit"
-          className="py-3 mt-4 btn btn-lg btn-success btn-block"
-        >
-          Sign up today
-        </button>
-      </form>
-    </div>
-  </div>
-</Page>
+      </div>
+    </Page>
   )
 }
 

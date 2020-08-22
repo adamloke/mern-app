@@ -1,21 +1,30 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import {BrowserRouter, Switch, Route} from 'react-router-dom'
+import React, { useState } from "react"
+import ReactDOM from "react-dom"
+import { BrowserRouter, Switch, Route } from "react-router-dom"
+import Axios from "axios"
+Axios.defaults.baseURL = "http://localhost:8080"
 
 /* Components */
-import Header from './comp/Header'
-import Hero from './comp/Hero'
-import Footer from './comp/Footer'
-import About  from './comp/About'
-import Terms from './comp/Terms'
+import Header from "./comp/Header"
+import Hero from "./comp/Hero"
+import Home from "./comp/Home"
+import Footer from "./comp/Footer"
+import About from "./comp/About"
+import Terms from "./comp/Terms"
+import CreatePost from "./comp/CreatePost"
 
-function ExampleComp() {
+function Index() {
+  const [loggedIn, setloggedIn] = useState(Boolean(localStorage.getItem("appToken")))
+
   return (
     <BrowserRouter>
-      <Header />
+      <Header loggedIn={loggedIn} setloggedIn={setloggedIn} />
       <Switch>
         <Route path="/" exact>
-          <Hero />
+          {loggedIn ? <Home /> : <Hero />}
+        </Route>
+        <Route path="/create-post">
+          <CreatePost />
         </Route>
         <Route path="/about">
           <About />
@@ -29,8 +38,8 @@ function ExampleComp() {
   )
 }
 
-ReactDOM.render(<ExampleComp />, document.querySelector('#app'))
+ReactDOM.render(<Index />, document.querySelector("#app"))
 
-if(module.hot) {
+if (module.hot) {
   module.hot.accept()
 }
