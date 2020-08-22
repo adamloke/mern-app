@@ -12,19 +12,30 @@ import Footer from "./comp/Footer"
 import About from "./comp/About"
 import Terms from "./comp/Terms"
 import CreatePost from "./comp/CreatePost"
+import ViewSinglePost from "./comp/ViewSinglePost"
+import FlashMessage from "./comp/FlashMessage"
 
 function Index() {
   const [loggedIn, setloggedIn] = useState(Boolean(localStorage.getItem("appToken")))
+  const [flashMessages, setFlashMessages] = useState([])
+
+  function addFlashMessage(msg) {
+    setFlashMessages((prev) => prev.concat(msg))
+  }
 
   return (
     <BrowserRouter>
+      <FlashMessage messages={flashMessages} />
       <Header loggedIn={loggedIn} setloggedIn={setloggedIn} />
       <Switch>
         <Route path="/" exact>
           {loggedIn ? <Home /> : <Hero />}
         </Route>
+        <Route path="/post/:id">
+          <ViewSinglePost />
+        </Route>
         <Route path="/create-post">
-          <CreatePost />
+          <CreatePost addFlashMessage={addFlashMessage} />
         </Route>
         <Route path="/about">
           <About />
