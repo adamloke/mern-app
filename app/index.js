@@ -4,6 +4,9 @@ import { BrowserRouter, Switch, Route } from "react-router-dom"
 import Axios from "axios"
 Axios.defaults.baseURL = "http://localhost:8080"
 
+import StateContext from "./StateContext"
+import DispatchContext from "./DispatchContext"
+
 /* Components */
 import Header from "./comp/Header"
 import Hero from "./comp/Hero"
@@ -14,7 +17,6 @@ import Terms from "./comp/Terms"
 import CreatePost from "./comp/CreatePost"
 import ViewSinglePost from "./comp/ViewSinglePost"
 import FlashMessage from "./comp/FlashMessage"
-import ExampleContext from "./ExampleContext"
 
 function Index() {
   const initialState = { loggedIn: Boolean(localStorage.getItem("appToken")), flashMessages: [] }
@@ -32,38 +34,33 @@ function Index() {
 
   const [state, dispatch] = useReducer(ourReducer, initialState)
 
-  const [loggedIn, setloggedIn] = useState(Boolean(localStorage.getItem("appToken")))
-  const [flashMessages, setFlashMessages] = useState([])
-
-  function addFlashMessage(msg) {
-    setFlashMessages((prev) => prev.concat(msg))
-  }
-
   return (
-    <ExampleContext.Provider value={{ addFlashMessage, setloggedIn }}>
-      <BrowserRouter>
-        <FlashMessage messages={flashMessages} />
-        <Header loggedIn={loggedIn} />
-        <Switch>
-          <Route path="/" exact>
-            {loggedIn ? <Home /> : <Hero />}
-          </Route>
-          <Route path="/post/:id">
-            <ViewSinglePost />
-          </Route>
-          <Route path="/create-post">
-            <CreatePost />
-          </Route>
-          <Route path="/about">
-            <About />
-          </Route>
-          <Route path="/terms">
-            <Terms />
-          </Route>
-        </Switch>
-        <Footer />
-      </BrowserRouter>
-    </ExampleContext.Provider>
+    <StateContext.Provider value={state}>
+      <DispatchContext.Provider value={dispatch}>
+        <BrowserRouter>
+          <FlashMessage messages={state.flashMessages} />
+          <Header />
+          <Switch>
+            <Route path="/" exact>
+              {state.loggedIn ? <Home /> : <Hero />}
+            </Route>
+            <Route path="/post/:id">
+              <ViewSinglePost />
+            </Route>
+            <Route path="/create-post">
+              <CreatePost />
+            </Route>
+            <Route path="/about">
+              <About />
+            </Route>
+            <Route path="/terms">
+              <Terms />
+            </Route>
+          </Switch>
+          <Footer />
+        </BrowserRouter>
+      </DispatchContext.Provider>
+    </StateContext.Provider>
   )
 }
 

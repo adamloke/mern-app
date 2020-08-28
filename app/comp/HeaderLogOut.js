@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from "react"
 import Axios from "axios"
-import ExampleContext from "../ExampleContext"
+import DispatchContext from "../DispatchContext"
 
 function HeaderLogOut(props) {
-  const { setloggedIn } = useContext(ExampleContext)
+  const appDispatch = useContext(DispatchContext)
 
   //login form input
   const [username, setUsername] = useState()
@@ -20,7 +20,7 @@ function HeaderLogOut(props) {
         localStorage.setItem("appToken", response.data.token)
         localStorage.setItem("appUsername", response.data.username)
         localStorage.setItem("appAvatar", response.data.avatar)
-        setloggedIn(true)
+        appDispatch({ type: "login" })
       } else {
         console.log("Incorrect login information")
       }
