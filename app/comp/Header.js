@@ -12,7 +12,7 @@ function Header(props) {
             React App
           </Link>
         </h4>
-        {props.loggedIn ? <HeaderLogin setloggedIn={props.setloggedIn} /> : <HeaderLogOut setloggedIn={props.setloggedIn} />}
+        {props.loggedIn ? <HeaderLogin /> : <HeaderLogOut />}
       </div>
     </header>
   )

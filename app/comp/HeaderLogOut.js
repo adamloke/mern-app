@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import Axios from "axios"
+import ExampleContext from "../ExampleContext"
 
 function HeaderLogOut(props) {
+  const { setloggedIn } = useContext(ExampleContext)
+
   //login form input
   const [username, setUsername] = useState()
   const [password, setPassword] = useState()
@@ -17,7 +20,7 @@ function HeaderLogOut(props) {
         localStorage.setItem("appToken", response.data.token)
         localStorage.setItem("appUsername", response.data.username)
         localStorage.setItem("appAvatar", response.data.avatar)
-        props.setloggedIn(true)
+        setloggedIn(true)
       } else {
         console.log("Incorrect login information")
       }

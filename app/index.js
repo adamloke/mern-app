@@ -14,6 +14,7 @@ import Terms from "./comp/Terms"
 import CreatePost from "./comp/CreatePost"
 import ViewSinglePost from "./comp/ViewSinglePost"
 import FlashMessage from "./comp/FlashMessage"
+import ExampleContext from "./ExampleContext"
 
 function Index() {
   const [loggedIn, setloggedIn] = useState(Boolean(localStorage.getItem("appToken")))
@@ -24,28 +25,30 @@ function Index() {
   }
 
   return (
-    <BrowserRouter>
-      <FlashMessage messages={flashMessages} />
-      <Header loggedIn={loggedIn} setloggedIn={setloggedIn} />
-      <Switch>
-        <Route path="/" exact>
-          {loggedIn ? <Home /> : <Hero />}
-        </Route>
-        <Route path="/post/:id">
-          <ViewSinglePost />
-        </Route>
-        <Route path="/create-post">
-          <CreatePost addFlashMessage={addFlashMessage} />
-        </Route>
-        <Route path="/about">
-          <About />
-        </Route>
-        <Route path="/terms">
-          <Terms />
-        </Route>
-      </Switch>
-      <Footer />
-    </BrowserRouter>
+    <ExampleContext.Provider value={{ addFlashMessage, setloggedIn }}>
+      <BrowserRouter>
+        <FlashMessage messages={flashMessages} />
+        <Header loggedIn={loggedIn} />
+        <Switch>
+          <Route path="/" exact>
+            {loggedIn ? <Home /> : <Hero />}
+          </Route>
+          <Route path="/post/:id">
+            <ViewSinglePost />
+          </Route>
+          <Route path="/create-post">
+            <CreatePost />
+          </Route>
+          <Route path="/about">
+            <About />
+          </Route>
+          <Route path="/terms">
+            <Terms />
+          </Route>
+        </Switch>
+        <Footer />
+      </BrowserRouter>
+    </ExampleContext.Provider>
   )
 }
 
