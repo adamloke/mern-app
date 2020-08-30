@@ -18,6 +18,7 @@ import Terms from "./comp/Terms"
 import CreatePost from "./comp/CreatePost"
 import ViewSinglePost from "./comp/ViewSinglePost"
 import FlashMessage from "./comp/FlashMessage"
+import Profile from "./comp/Profile"
 
 function Index() {
   const initialState = {
@@ -66,6 +67,9 @@ function Index() {
           <FlashMessage messages={state.flashMessages} />
           <Header />
           <Switch>
+            <Route path="/profile/:username">
+              <Profile />
+            </Route>
             <Route path="/" exact>
               {state.loggedIn ? <Home /> : <Hero />}
             </Route>
