@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import Page from "./page"
 import Axios from "axios"
+import ReactMarkdown from "react-markdown"
+import Page from "./page"
 import LoadingIcon from "./LoadingIcon"
 
 function ViewSinglePost() {
@@ -57,7 +58,9 @@ function ViewSinglePost() {
         Posted by <Link to={`/profile/${post.author.username}`}>{post.author.username}</Link> {dateFormatted}
       </p>
 
-      <div className="body-content">{post.body}</div>
+      <div className="body-content">
+        <ReactMarkdown source={post.body} />
+      </div>
     </Page>
   )
 }
