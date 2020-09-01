@@ -19,6 +19,7 @@ import CreatePost from "./comp/CreatePost"
 import ViewSinglePost from "./comp/ViewSinglePost"
 import FlashMessage from "./comp/FlashMessage"
 import Profile from "./comp/Profile"
+import EditPost from "./comp/EditPost"
 
 function Index() {
   const initialState = {
@@ -73,8 +74,11 @@ function Index() {
             <Route path="/" exact>
               {state.loggedIn ? <Home /> : <Hero />}
             </Route>
-            <Route path="/post/:id">
+            <Route path="/post/:id" exact>
               <ViewSinglePost />
+            </Route>
+            <Route path="/post/:id/edit" exact>
+              <EditPost />
             </Route>
             <Route path="/create-post">
               <CreatePost />
