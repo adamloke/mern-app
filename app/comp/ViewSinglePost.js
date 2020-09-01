@@ -10,16 +10,20 @@ function ViewSinglePost() {
   const [post, setPost] = useState()
 
   useEffect(() => {
+    const Request = Axios.CancelToken.source()
     async function fetchPost() {
       try {
-        const response = await Axios.get(`/post/${id}`)
+        const response = await Axios.get(`/post/${id}`, { cancelToken: Request.token })
         setPost(response.data)
         setIsLoading(false)
       } catch (e) {
-        console.log("There was a problem.")
+        console.log("There was a problem or the request was cancelled")
       }
     }
     fetchPost()
+    return () => {
+      Request.cancel()
+    }
   }, [])
 
   if (isLoading)

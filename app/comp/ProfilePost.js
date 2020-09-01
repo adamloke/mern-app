@@ -9,9 +9,10 @@ function ProfilePost(props) {
   const [posts, setPosts] = useState([])
 
   useEffect(() => {
+    const Request = Axios.CancelToken.source()
     async function fetchPosts() {
       try {
-        const response = await Axios.get(`/profile/${username}/posts`)
+        const response = await Axios.get(`/profile/${username}/posts`, { cancelToken: Request.token })
         setPosts(response.data)
         setIsLoading(false)
       } catch (e) {
@@ -19,6 +20,9 @@ function ProfilePost(props) {
       }
     }
     fetchPosts()
+    return () => {
+      Request.cancel()
+    }
   }, [])
 
   if (isLoading) return <LoadingIcon />
