@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown"
 import ReactTooltip from "react-tooltip"
 import Page from "./page"
 import LoadingIcon from "./LoadingIcon"
+import NotFound from "./NotFound"
 
 function ViewSinglePost() {
   const { id } = useParams()
@@ -27,6 +28,10 @@ function ViewSinglePost() {
       Request.cancel()
     }
   }, [])
+
+  if (!isLoading && !post) {
+    return <NotFound />
+  }
 
   if (isLoading)
     return (

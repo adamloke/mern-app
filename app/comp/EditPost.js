@@ -1,13 +1,14 @@
 import React, { useEffect, useState, useContext } from "react"
 import { useImmerReducer } from "use-immer"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, withRouter } from "react-router-dom"
 import Axios from "axios"
 import Page from "./page"
 import LoadingIcon from "./LoadingIcon"
 import StateContext from "../StateContext"
 import DispatchContext from "../DispatchContext"
+import NotFound from "./NotFound"
 
-function ViewSinglePost() {
+function EditPost(props) {
   const appState = useContext(StateContext)
   const appDispatch = useContext(DispatchContext)
 
@@ -26,6 +27,7 @@ function ViewSinglePost() {
     isSaving: false,
     id: useParams().id,
     sendCount: 0,
+    notFound: false,
   }
 
   function ourReducer(draft, action) {
@@ -66,6 +68,9 @@ function ViewSinglePost() {
           draft.body.message = "You must provide body content"
         }
         break
+      case "notFound":
+        draft.notFound = true
+        break
       default:
     }
   }
@@ -85,7 +90,16 @@ function ViewSinglePost() {
     async function fetchPost() {
       try {
         const response = await Axios.get(`/post/${state.id}`, { cancelToken: Request.token })
-        dispatch({ type: "fetchComplete", value: response.data })
+        if (response.data) {
+          dispatch({ type: "fetchComplete", value: response.data })
+          if (appState.user.username != response.data.author.username) {
+            appDispatch({ type: "flashMessage", value: "You do not have permission to edit this post." })
+            // redirect to homepage
+            props.history.push("/")
+          }
+        } else {
+          dispatch({ type: "notFound" })
+        }
       } catch (e) {
         console.log("There was a problem or the request was cancelled")
       }
@@ -117,6 +131,10 @@ function ViewSinglePost() {
     }
   }, [state.sendCount])
 
+  if (state.notFound) {
+    return <NotFound />
+  }
+
   if (state.isFetching)
     return (
       <Page title="...">
@@ -126,7 +144,10 @@ function ViewSinglePost() {
 
   return (
     <Page title="Edit Post">
-      <form onSubmit={handleSubmit}>
+      <Link className="small font-weight-bold" to={`/post/${state.id}`}>
+        &laquo; Go back post
+      </Link>
+      <form className="mt-3" onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="post-title" className="text-muted mb-1">
             <small>Title</small>
@@ -149,4 +170,4 @@ function ViewSinglePost() {
   )
 }
 
-export default ViewSinglePost
+export default withRouter(EditPost)

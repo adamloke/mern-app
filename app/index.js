@@ -20,6 +20,7 @@ import ViewSinglePost from "./comp/ViewSinglePost"
 import FlashMessage from "./comp/FlashMessage"
 import Profile from "./comp/Profile"
 import EditPost from "./comp/EditPost"
+import NotFound from "./comp/NotFound"
 
 function Index() {
   const initialState = {
@@ -88,6 +89,9 @@ function Index() {
             </Route>
             <Route path="/terms">
               <Terms />
+            </Route>
+            <Route>
+              <NotFound />
             </Route>
           </Switch>
           <Footer />
