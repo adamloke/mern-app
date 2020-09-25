@@ -2,6 +2,7 @@ import React, { useState, useReducer, useEffect } from "react"
 import ReactDOM from "react-dom"
 import { useImmerReducer } from "use-immer"
 import { BrowserRouter, Switch, Route } from "react-router-dom"
+import { CSSTransition } from "react-transition-group"
 import Axios from "axios"
 Axios.defaults.baseURL = "http://localhost:8080"
 
@@ -21,6 +22,7 @@ import FlashMessage from "./comp/FlashMessage"
 import Profile from "./comp/Profile"
 import EditPost from "./comp/EditPost"
 import NotFound from "./comp/NotFound"
+import Search from "./comp/Search"
 
 function Index() {
   const initialState = {
@@ -31,6 +33,7 @@ function Index() {
       username: localStorage.getItem("appUsername"),
       avatar: localStorage.getItem("appAvatar"),
     },
+    isSearchOpen: false,
   }
 
   function ourReducer(draft, action) {
@@ -44,6 +47,12 @@ function Index() {
         break
       case "flashMessage":
         draft.flashMessages.push(action.value)
+        break
+      case "openSearch":
+        draft.isSearchOpen = true
+        break
+      case "closeSearch":
+        draft.isSearchOpen = false
         break
     }
   }
@@ -94,6 +103,9 @@ function Index() {
               <NotFound />
             </Route>
           </Switch>
+          <CSSTransition timeout={330} in={state.isSearchOpen} classNames="search-overlay" unmountOnExit>
+            <Search />
+          </CSSTransition>
           <Footer />
         </BrowserRouter>
       </DispatchContext.Provider>
