@@ -23,6 +23,7 @@ import Profile from "./comp/Profile"
 import EditPost from "./comp/EditPost"
 import NotFound from "./comp/NotFound"
 import Search from "./comp/Search"
+import Chat from "./comp/Chat"
 
 function Index() {
   const initialState = {
@@ -34,6 +35,8 @@ function Index() {
       avatar: localStorage.getItem("appAvatar"),
     },
     isSearchOpen: false,
+    isChatOpen: false,
+    chatCount: 0,
   }
 
   function ourReducer(draft, action) {
@@ -53,6 +56,18 @@ function Index() {
         break
       case "closeSearch":
         draft.isSearchOpen = false
+        break
+      case "toggleChat":
+        draft.isChatOpen = !draft.isChatOpen
+        break
+      case "closeChat":
+        draft.isChatOpen = false
+        break
+      case "updateChatCount":
+        draft.chatCount++
+        break
+      case "clearChatCount":
+        draft.chatCount = 0
         break
     }
   }
@@ -106,6 +121,7 @@ function Index() {
           <CSSTransition timeout={330} in={state.isSearchOpen} classNames="search-overlay" unmountOnExit>
             <Search />
           </CSSTransition>
+          <Chat />
           <Footer />
         </BrowserRouter>
       </DispatchContext.Provider>
