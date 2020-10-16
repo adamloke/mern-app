@@ -1,25 +1,191 @@
-import React, { useState } from "react"
+import React, { useEffect, useContext } from "react"
 import Page from "./Page"
 import Axios from "axios"
+import { useImmerReducer } from "use-immer"
+import { CSSTransition } from "react-transition-group"
+import DispatchContext from "../DispatchContext"
 
 function Hero() {
-  //signup form input
-  const [username, setUsername] = useState()
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
-  const handleUsername = (e) => setUsername(e.target.value)
-  const handleEmail = (e) => setEmail(e.target.value)
-  const handlePassword = (e) => setPassword(e.target.value)
+  const appDispatch = useContext(DispatchContext)
+  const initialState = {
+    username: {
+      value: "",
+      hasErrors: false,
+      message: "",
+      isUnique: false,
+      checkCount: 0,
+    },
+    email: {
+      value: "",
+      hasErrors: false,
+      message: "",
+      isUnique: false,
+      checkCount: 0,
+    },
+    password: {
+      value: "",
+      hasErrors: false,
+      message: "",
+    },
+    submitCount: 0,
+  }
 
-  // send signup data to backend
-  async function handleSubmit(e) {
-    e.preventDefault()
-    try {
-      await Axios.post("/register", { username, email, password })
-      console.log("User was successfully created")
-    } catch (e) {
-      console.log(e.response.data)
+  function Reducer(draft, action) {
+    switch (action.type) {
+      case "usernameDirect":
+        draft.username.hasErrors = false
+        draft.username.value = action.value
+        if (draft.username.value.length > 30) {
+          draft.username.hasErrors = true
+          draft.username.message = "Username cannot exceed 30 characters."
+        }
+        if (draft.username.value && !/^([a-zA-Z0-9]+)$/.test(draft.username.value)) {
+          draft.username.hasErrors = true
+          draft.username.message = "Username can only contain letters and numbers."
+        }
+        break
+      case "usernameDelay":
+        if (draft.username.value.length < 3) {
+          draft.username.hasErrors = true
+          draft.username.message = "Username must be at least 3 characters."
+        }
+        if (!draft.hasErrors && !action.noRequest) {
+          draft.username.checkCount++
+        }
+        break
+      case "usernameUniqueResult":
+        if (action.value) {
+          draft.username.hasErrors = true
+          draft.username.isUnique = false
+          draft.username.message = "That username is already taken"
+        } else {
+          draft.username.isUnique = true
+        }
+        break
+      case "emailDirect":
+        draft.email.hasErrors = false
+        draft.email.value = action.value
+        break
+      case "emailDelay":
+        if (!/^\S+@\S+$/.test(draft.email.value)) {
+          draft.email.hasErrors = true
+          draft.email.message = "You must provide a valid email address."
+        }
+        if (!draft.email.hasErrors && !action.noRequest) {
+          draft.email.checkCount++
+        }
+        break
+      case "emailUniqueResult":
+        if (action.value) {
+          draft.email.hasErrors = true
+          draft.email.message = "This email is already being used."
+        } else {
+          draft.email.isUnique = true
+        }
+        break
+      case "passwordDirect":
+        draft.password.hasErrors = false
+        draft.password.value = action.value
+        if (draft.password.value.length > 50) {
+          draft.password.hasErrors = true
+          draft.password.message = "Password cannot exceed 50 characters."
+        }
+        break
+      case "passwordDelay":
+        if (draft.password.value.length < 12) {
+          draft.password.hasErrors = true
+          draft.password.message = "Password must be at least 12 characters."
+        }
+        break
+      case "submitForm":
+        if (!draft.username.hasErrors && draft.username.isUnique && !draft.email.hasErrors && draft.email.isUnique && !draft.password.hasErrors) {
+          draft.submitCount++
+        }
+        break
     }
+  }
+
+  const [state, dispatch] = useImmerReducer(Reducer, initialState)
+
+  useEffect(() => {
+    if (state.username.value) {
+      const delay = setTimeout(() => dispatch({ type: "usernameDelay" }), 800)
+      return () => clearTimeout(delay)
+    }
+  }, [state.username.value])
+
+  useEffect(() => {
+    if (state.email.value) {
+      const delay = setTimeout(() => dispatch({ type: "emailDelay" }), 800)
+      return () => clearTimeout(delay)
+    }
+  }, [state.email.value])
+
+  useEffect(() => {
+    if (state.password.value) {
+      const delay = setTimeout(() => dispatch({ type: "passwordDelay" }), 800)
+      return () => clearTimeout(delay)
+    }
+  }, [state.password.value])
+
+  useEffect(() => {
+    if (state.username.checkCount) {
+      const ourRequest = Axios.CancelToken.source()
+      async function fetchResults() {
+        try {
+          const response = await Axios.post("/doesUsernameExist", { username: state.username.value }, { cancelToken: ourRequest.token })
+          dispatch({ type: "usernameUniqueResult", value: response.data })
+        } catch (e) {
+          console.log("error")
+        }
+      }
+      fetchResults()
+      return () => ourRequest.cancel()
+    }
+  }, [state.username.checkCount])
+
+  useEffect(() => {
+    if (state.email.checkCount) {
+      const ourRequest = Axios.CancelToken.source()
+      async function fetchResults() {
+        try {
+          const response = await Axios.post("/doesEmailExist", { email: state.email.value }, { cancelToken: ourRequest.token })
+          dispatch({ type: "emailUniqueResult", value: response.data })
+        } catch (e) {
+          console.log("error")
+        }
+      }
+      fetchResults()
+      return () => ourRequest.cancel()
+    }
+  }, [state.email.checkCount])
+
+  useEffect(() => {
+    if (state.submitCount) {
+      const ourRequest = Axios.CancelToken.source()
+      async function fetchResults() {
+        try {
+          const response = await Axios.post("/register", { username: state.username.value, email: state.email.value, password: state.password.value }, { cancelToken: ourRequest.token })
+          appDispatch({ type: "login", data: response.data })
+          appDispatch({ type: "flashMessage", value: "You're logged in!" })
+        } catch (e) {
+          console.log("error")
+        }
+      }
+      fetchResults()
+      return () => ourRequest.cancel()
+    }
+  }, [state.submitCount])
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    dispatch({ type: "usernameDirect", value: state.username.value })
+    dispatch({ type: "usernameDelay", value: state.username.value, noRequest: true })
+    dispatch({ type: "emailDirect", value: state.email.value })
+    dispatch({ type: "emailDelay", value: state.email.value, noRequest: true })
+    dispatch({ type: "passwordDirect", value: state.password.value })
+    dispatch({ type: "passwordDelay", value: state.password.value })
+    dispatch({ type: "submitForm" })
   }
 
   return (
@@ -35,19 +201,28 @@ function Hero() {
               <label htmlFor="username-register" className="text-muted mb-1">
                 <small>Username</small>
               </label>
-              <input onChange={handleUsername} id="username-register" name="username" className="form-control" type="text" placeholder="Pick a username" autoComplete="off" />
+              <input onChange={(e) => dispatch({ type: "usernameDirect", value: e.target.value })} id="username-register" name="username" className="form-control" type="text" placeholder="Pick a username" autoComplete="off" />
+              <CSSTransition in={state.username.hasErrors} timeout={330} classNames="liveValidateMessage" unmountOnExit>
+                <div className="alert alert-danger small liveValidateMessage">{state.username.message}</div>
+              </CSSTransition>
             </div>
             <div className="form-group">
               <label htmlFor="email-register" className="text-muted mb-1">
                 <small>Email</small>
               </label>
-              <input onChange={handleEmail} id="email-register" name="email" className="form-control" type="text" placeholder="you@example.com" autoComplete="off" />
+              <input onChange={(e) => dispatch({ type: "emailDirect", value: e.target.value })} id="email-register" name="email" className="form-control" type="text" placeholder="you@example.com" autoComplete="off" />
+              <CSSTransition in={state.email.hasErrors} timeout={330} classNames="liveValidateMessage" unmountOnExit>
+                <div className="alert alert-danger small liveValidateMessage">{state.email.message}</div>
+              </CSSTransition>
             </div>
             <div className="form-group">
               <label htmlFor="password-register" className="text-muted mb-1">
                 <small>Password</small>
               </label>
-              <input onChange={handlePassword} id="password-register" name="password" className="form-control" type="password" placeholder="Create a password" autoComplete="off" />
+              <input onChange={(e) => dispatch({ type: "passwordDirect", value: e.target.value })} id="password-register" name="password" className="form-control" type="password" placeholder="Create a password" autoComplete="off" />
+              <CSSTransition in={state.password.hasErrors} timeout={330} classNames="liveValidateMessage" unmountOnExit>
+                <div className="alert alert-danger small liveValidateMessage">{state.password.message}</div>
+              </CSSTransition>
             </div>
             <button type="submit" className="py-3 mt-4 btn btn-lg btn-success btn-block">
               Sign up today
