@@ -5,7 +5,7 @@ import { useImmer } from "use-immer"
 import { Link } from "react-router-dom"
 import io from "socket.io-client"
 
-const socket = io("http://localhost:8080")
+const socket = io(process.env.BACKENDURL || "https://adamloke-mern-app.herokuapp.com")
 
 function Chat() {
   const appState = useContext(StateContext)
