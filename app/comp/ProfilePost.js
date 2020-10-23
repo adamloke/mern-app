@@ -31,7 +31,7 @@ function ProfilePost(props) {
   return (
     <div className="list-group">
       {posts.map((post, index) => {
-        return <Post post={post} noAuthor={true} />
+        return <Post key={index} post={post} noAuthor={true} />
       })}
     </div>
   )

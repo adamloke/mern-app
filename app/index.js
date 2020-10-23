@@ -1,10 +1,10 @@
-import React, { useState, useReducer, useEffect } from "react"
+import React, { useState, useReducer, useEffect, Suspense } from "react"
 import ReactDOM from "react-dom"
 import { useImmerReducer } from "use-immer"
 import { BrowserRouter, Switch, Route } from "react-router-dom"
 import { CSSTransition } from "react-transition-group"
 import Axios from "axios"
-Axios.defaults.baseURL = "http://localhost:8080"
+Axios.defaults.baseURL = process.env.BACKENDURL || ""
 
 import StateContext from "./StateContext"
 import DispatchContext from "./DispatchContext"
@@ -16,14 +16,15 @@ import Home from "./comp/Home"
 import Footer from "./comp/Footer"
 import About from "./comp/About"
 import Terms from "./comp/Terms"
-import CreatePost from "./comp/CreatePost"
-import ViewSinglePost from "./comp/ViewSinglePost"
+const CreatePost = React.lazy(() => import("./comp/CreatePost"))
+const ViewSinglePost = React.lazy(() => import("./comp/ViewSinglePost"))
 import FlashMessage from "./comp/FlashMessage"
 import Profile from "./comp/Profile"
 import EditPost from "./comp/EditPost"
 import NotFound from "./comp/NotFound"
 import Search from "./comp/Search"
 import Chat from "./comp/Chat"
+import LoadingIcon from "./comp/LoadingIcon"
 
 function Index() {
   const initialState = {
@@ -92,7 +93,7 @@ function Index() {
       const ourRequest = Axios.CancelToken.source()
       async function fetchResults() {
         try {
-          const response = await Axios.post("/checkToken", { toke: state.user.token }, { cancelToken: ourRequest.token })
+          const response = await Axios.post("/checkToken", { token: state.user.token }, { cancelToken: ourRequest.token })
           if (!response.data) {
             dispatch({ type: "logout" })
             dispatch({ type: "flashMessage", value: "Your session has expired. Please login again." })
@@ -112,32 +113,34 @@ function Index() {
         <BrowserRouter>
           <FlashMessage messages={state.flashMessages} />
           <Header />
-          <Switch>
-            <Route path="/profile/:username">
-              <Profile />
-            </Route>
-            <Route path="/" exact>
-              {state.loggedIn ? <Home /> : <Hero />}
-            </Route>
-            <Route path="/post/:id" exact>
-              <ViewSinglePost />
-            </Route>
-            <Route path="/post/:id/edit" exact>
-              <EditPost />
-            </Route>
-            <Route path="/create-post">
-              <CreatePost />
-            </Route>
-            <Route path="/about">
-              <About />
-            </Route>
-            <Route path="/terms">
-              <Terms />
-            </Route>
-            <Route>
-              <NotFound />
-            </Route>
-          </Switch>
+          <Suspense fallback={<LoadingIcon />}>
+            <Switch>
+              <Route path="/profile/:username">
+                <Profile />
+              </Route>
+              <Route path="/" exact>
+                {state.loggedIn ? <Home /> : <Hero />}
+              </Route>
+              <Route path="/post/:id" exact>
+                <ViewSinglePost />
+              </Route>
+              <Route path="/post/:id/edit" exact>
+                <EditPost />
+              </Route>
+              <Route path="/create-post">
+                <CreatePost />
+              </Route>
+              <Route path="/about">
+                <About />
+              </Route>
+              <Route path="/terms">
+                <Terms />
+              </Route>
+              <Route>
+                <NotFound />
+              </Route>
+            </Switch>
+          </Suspense>
           <CSSTransition timeout={330} in={state.isSearchOpen} classNames="search-overlay" unmountOnExit>
             <Search />
           </CSSTransition>
